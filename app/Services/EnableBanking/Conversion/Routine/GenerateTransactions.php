@@ -37,6 +37,13 @@ use Illuminate\Support\Facades\Log;
  */
 final class GenerateTransactions
 {
+    /**
+     * Shared settlement IBANs that do not identify the actual merchant.
+     */
+    private const SHARED_CARD_SETTLEMENT_IBANS = [
+        'DE96120300009005290904',
+    ];
+
     use CollectsAccounts;
 
     private array $accounts;
@@ -131,6 +138,21 @@ final class GenerateTransactions
         if (-1 === bccomp($entry->transactionAmount, '0')) {
             Log::debug('Amount is negative: assume transfer or withdrawal.');
             $transaction = $this->appendNegativeAmountInfo($accountUid, $transaction, $entry);
+        }
+
+        // Shared settlement IBANs do not identify the actual merchant.
+        if (
+            'withdrawal' === $transaction['type']
+            && in_array(
+                $transaction['destination_iban'] ?? '',
+                self::SHARED_CARD_SETTLEMENT_IBANS,
+                true
+            )
+        ) {
+            unset(
+                $transaction['destination_iban'],
+                $transaction['destination_bban']
+            );
         }
 
         $return['transactions'][] = $transaction;
