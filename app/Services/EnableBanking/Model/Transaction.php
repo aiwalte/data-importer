@@ -153,6 +153,15 @@ final class Transaction
         if (!is_array($remittanceInfo)) {
             $transaction->remittanceInformation = trim($remittanceInfo);
         }
+        // ING may combine structured SEPA fields with the actual remittance information.
+        $cleanedRemittanceInformation = preg_replace(
+            '/^\\s*mandatereference:[^,]*,\\s*creditorid:[^,]*,\\s*remittanceinformation:\\s*/i',
+            '',
+            $transaction->remittanceInformation
+        );
+        if (null !== $cleanedRemittanceInformation) {
+            $transaction->remittanceInformation = trim($cleanedRemittanceInformation);
+        }
         $transaction->additionalInformation = $array['additional_information'] ?? $array['note'] ?? '';
 
         $transaction->status                = $array['status'] ?? 'booked';
