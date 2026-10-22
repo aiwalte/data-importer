@@ -159,6 +159,34 @@ final class GenerateTransactions
             );
         }
 
+        // Normalize both representations of an internal transfer so Firefly III
+        // can compare their content independently of bank-specific metadata.
+        if ('transfer' === $transaction['type']) {
+            unset(
+                $transaction['external_id'],
+                $transaction['internal_reference'],
+                $transaction['source_name'],
+                $transaction['source_iban'],
+                $transaction['source_bban'],
+                $transaction['destination_name'],
+                $transaction['destination_iban'],
+                $transaction['destination_bban']
+            );
+
+            $transaction['amount'] = bcadd(
+                $transaction['amount'],
+                '0',
+                12
+            );
+
+            // Instant transfers may be booked on the next banking day.
+            // Use the value date to normalize both account representations.
+            if ($valueDate instanceof Carbon) {
+                $transaction['date']     = $valueDate->toW3cString();
+                $transaction['datetime'] = $valueDate->toW3cString();
+            }
+        }
+
         $return['transactions'][] = $transaction;
         Log::debug(sprintf('[%s] Parsed Enable Banking transaction "%s".', config('importer.version'), $entry->getTransactionId()));
 
