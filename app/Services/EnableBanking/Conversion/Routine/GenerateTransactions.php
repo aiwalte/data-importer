@@ -120,7 +120,11 @@ final class GenerateTransactions
             'payment_date'       => $valueDate instanceof Carbon ? $valueDate->format('Y-m-d') : '',
             'order'              => 0,
             'currency_code'      => $entry->currencyCode,
-            'tags'               => $entry->tags,
+            // Bank transaction codes may change after initial booking
+            // and would therefore produce a different duplicate hash.
+            'tags'               => '' !== $entry->status
+                ? [$entry->status]
+                : [],
             'category_name'      => null,
             'category_id'        => null,
             'notes'              => $entry->getNotes(),
