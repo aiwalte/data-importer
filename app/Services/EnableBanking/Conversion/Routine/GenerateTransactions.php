@@ -170,7 +170,8 @@ final class GenerateTransactions
                 $transaction['source_bban'],
                 $transaction['destination_name'],
                 $transaction['destination_iban'],
-                $transaction['destination_bban']
+                $transaction['destination_bban'],
+                $transaction['book_date']
             );
 
             $transaction['amount'] = bcadd(
