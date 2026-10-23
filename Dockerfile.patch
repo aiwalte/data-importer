@@ -1,0 +1,7 @@
+FROM fireflyiii/data-importer:develop
+
+COPY app/Services/EnableBanking/Model/Transaction.php \
+     /var/www/html/app/Services/EnableBanking/Model/Transaction.php
+
+COPY app/Services/EnableBanking/Conversion/Routine/GenerateTransactions.php \
+     /var/www/html/app/Services/EnableBanking/Conversion/Routine/GenerateTransactions.php
